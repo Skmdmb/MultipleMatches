@@ -222,13 +222,13 @@
 
         <div class="space-y-3 text-left">
 
-            <!-- OPTIONAL TOSS BUTTON FEATURE -->
+            <!-- TRUE COIN TOSS FEATURE (HEADS OR TAILS) -->
             <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 flex justify-between items-center mb-2">
                 <div>
-                    <p class="text-[10px] font-black text-yellow-500 uppercase">Optional Toss Feature</p>
-                    <p id="tossResultDisp" class="text-xs text-slate-400 font-bold">Not conducted yet</p>
+                    <p class="text-[10px] font-black text-yellow-500 uppercase">Coin Toss</p>
+                    <p id="tossResultDisp" class="text-xs text-slate-400 font-bold">Tap coin to flip</p>
                 </div>
-                <button onclick="performToss()" class="bg-purple-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-white">🪙 Toss</button>
+                <button onclick="performToss()" class="bg-purple-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-white">🪙 Toss Coin</button>
             </div>
 
             <!-- BATTING TEAM -->
@@ -1515,29 +1515,12 @@
 
 
     // =========================
-    // TOSS FEATURE
+    // TRUE COIN TOSS FEATURE (HEADS OR TAILS)
     // =========================
 
     function performToss() {
-        const team1 = document.getElementById('selectBatTeam').value;
-        const team2 = document.getElementById('selectBowlTeam').value;
-        if(team1 === team2) {
-            alert("Please select different teams first!");
-            return;
-        }
-        const teams = [team1, team2];
-        const winner = teams[Math.floor(Math.random() * teams.length)];
-        const decision = Math.random() > 0.5 ? "Bat" : "Bowl";
-
-        document.getElementById('tossResultDisp').innerText = `${winner} won toss & elected to ${decision}`;
-        
-        if(decision === "Bat") {
-            document.getElementById('selectBatTeam').value = winner;
-            document.getElementById('selectBowlTeam').value = teams.find(t => t !== winner);
-        } else {
-            document.getElementById('selectBowlTeam').value = winner;
-            document.getElementById('selectBatTeam').value = teams.find(t => t !== winner);
-        }
+        const flip = Math.random() < 0.5 ? "HEADS" : "TAILS";
+        document.getElementById('tossResultDisp').innerText = `Coin landed on: ${flip}`;
     }
 
 
@@ -1697,7 +1680,6 @@
 
         state.balls++;
 
-        // RECORD BALL LOG WITH INNINGS & BATTING TEAM TRACKING
         const overNum = Math.floor((state.balls - 1) / 6);
         const ballInOver = ((state.balls - 1) % 6) + 1;
         const notation = `${overNum}.${ballInOver}`;
@@ -2113,13 +2095,46 @@ function handleRunOutPrompt() {
                 if(state.runs === (state.target - 1)) {
                     let tieAction = prompt("Match Tied! Type 'SUPER' for Super Over, or enter winning team name to declare winner:");
                     if(tieAction && tieAction.trim().toUpperCase() === 'SUPER') {
-                        alert("Super Over Initiated!");
-                        state.target = state.runs + 1;
+                        alert("Super Over Initiated! Setting up 1-over innings for Super Over.");
+                        
+                        // Save previous regular match state to history first
+                        if(!state.matchesHistory) state.matchesHistory = [];
+                        state.matchesHistory.push({
+                            id: Date.now(),
+                            batTeam: state.batTeam,
+                            bowlTeam: state.bowlTeam,
+                            winner: 'Pending Super Over',
+                            loser: 'Pending Super Over',
+                            date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            playersSnapshot: JSON.parse(JSON.stringify(state.players)),
+                            firstInningsPlayersSnapshot: state.firstInningsPlayersSnapshot || JSON.parse(JSON.stringify(state.players)),
+                            firstInningsBallLog: state.firstInningsBallLog || [],
+                            secondInningsBallLog: [...(state.ballLog || [])],
+                            fallOfWickets: [...state.fallOfWickets],
+                            maxOvers: state.maxOvers
+                        });
+
+                        // SUPER OVER RESET: Treat as 1st Innings of Super Over (1 Over limit)
+                        state.maxOvers = 1;
+                        state.target = null;
                         state.runs = 0;
                         state.wickers = 0;
                         state.balls = 0;
+                        state.curInn = 1;
+                        state.curBat = state.batTeam;
                         state.overBalls = [];
+                        state.fallOfWickets = [];
+                        state.ballLog = [];
+                        state.sIdx = null;
+                        state.nsIdx = null;
+                        state.bIdx = null;
+
+                        state.players.forEach(p => {
+                            p.r = 0; p.b = 0; p.w = 0; p.rc = 0; p.bb = 0; p.isOut = false;
+                        });
+
                         render();
+                        syncToCloud();
                         return;
                     } else if(tieAction && state.tournamentTeams.includes(tieAction.trim())) {
                         finish(tieAction.trim(), tieAction.trim() === state.batTeam ? state.bowlTeam : state.batTeam);
@@ -2963,7 +2978,7 @@ function handleRunOutPrompt() {
     }
 
     // =========================
-    // MATCH HISTORY FEATURES (BOTH TEAMS TIMELINE)
+    // MATCH HISTORY FEATURES
     // =========================
 
     function toggleHistory() {
@@ -3067,7 +3082,6 @@ function handleRunOutPrompt() {
 
         document.getElementById('selectedTeamTimelineTitle').innerText = teamName;
 
-        // Determine which players snapshot to use for stats
         const isTeam1BattingFirst = (match.batTeam === teamName);
         const playersData = isTeam1BattingFirst ? (match.firstInningsPlayersSnapshot || match.playersSnapshot) : match.playersSnapshot;
 
@@ -3115,7 +3129,6 @@ function handleRunOutPrompt() {
             </table>
         `;
 
-        // Filter ball logs specific to this team's batting innings
         const allLogs = [...(match.firstInningsBallLog || []), ...(match.secondInningsBallLog || []), ...(match.ballLog || [])];
         const teamLogs = allLogs.filter(b => b.battingTeam === teamName);
         const maxOverNum = teamLogs.length > 0 ? Math.max(...teamLogs.map(b => b.over)) : 1;
