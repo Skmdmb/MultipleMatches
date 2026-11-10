@@ -44,12 +44,12 @@
 <!-- SETUP OVERLAY -->
 
 <div id="setupOverlay"
-     class="fixed inset-0 bg-slate-900 z-[200] hidden flex items-center justify-center p-6">
+     class="fixed inset-0 bg-slate-900 z-[200] hidden flex items-center justify-center p-4">
 
     <div class="
         bg-slate-800
-        p-8
-        rounded-[3rem]
+        p-6 sm:p-8
+        rounded-[2.5rem]
         border
         border-slate-700
         w-full
@@ -192,14 +192,14 @@
         flex
         items-center
         justify-center
-        p-6
+        p-4
         text-center
      ">
 
     <div class="
         bg-slate-800
-        p-8
-        rounded-[3rem]
+        p-6 sm:p-8
+        rounded-[2.5rem]
         w-full
         max-w-sm
         border
@@ -300,7 +300,7 @@
 <!-- NAVBAR -->
 
 <nav class="
-    p-4
+    p-3 sm:p-4
     flex
     justify-between
     items-center
@@ -318,6 +318,7 @@
         font-black
         italic
         text-yellow-500
+        text-sm sm:text-base
         tracking-tighter
     ">
         SUNDAY LIVE
@@ -325,14 +326,14 @@
 
     <!-- NAV BUTTONS -->
 
-    <div class="flex gap-2">
+    <div class="flex gap-1.5 sm:gap-2">
 
         <!-- SCORECARD MODAL BTN -->
         <button onclick="toggleScorecardModal()"
             class="
-                text-[10px]
+                text-[9px] sm:text-[10px]
                 bg-emerald-600
-                px-3
+                px-2.5 sm:px-3
                 py-2
                 rounded-full
                 font-bold
@@ -345,9 +346,9 @@
         <!-- HISTORY -->
         <button onclick="toggleHistory()"
             class="
-                text-[10px]
+                text-[9px] sm:text-[10px]
                 bg-purple-600
-                px-3
+                px-2.5 sm:px-3
                 py-2
                 rounded-full
                 font-bold
@@ -362,9 +363,9 @@
         <button onclick="togglePoints()"
 
             class="
-                text-[10px]
+                text-[9px] sm:text-[10px]
                 bg-blue-600
-                px-3
+                px-2.5 sm:px-3
                 py-2
                 rounded-full
                 font-bold
@@ -382,9 +383,9 @@
                 onclick="toggleAdmin()"
 
             class="
-                text-[10px]
+                text-[9px] sm:text-[10px]
                 bg-slate-700
-                px-3
+                px-2.5 sm:px-3
                 py-2
                 rounded-full
                 font-bold
@@ -450,14 +451,14 @@
 <!-- MAIN DASHBOARD -->
 
 <div id="mainDashboard"
-     class="max-w-md mx-auto p-4 hidden">
+     class="max-w-md mx-auto p-3 sm:p-4 hidden">
 
     <!-- SCOREBOARD -->
 
     <div class="
         bg-slate-800
         rounded-[2.5rem]
-        p-6
+        p-5 sm:p-6
         shadow-2xl
         border-b-8
         border-yellow-500
@@ -525,7 +526,7 @@
                 <h2 id="dispScore"
 
                     class="
-                        text-6xl
+                        text-5xl sm:text-6xl
                         font-black
                         tracking-tighter
                     ">
@@ -537,7 +538,7 @@
                 <p class="
                     text-slate-400
                     font-bold
-                    text-sm
+                    text-xs sm:text-sm
                 ">
 
                     Overs:
@@ -604,7 +605,7 @@
             class="
                 flex
                 flex-wrap
-                gap-2
+                gap-1.5 sm:gap-2
                 mt-4
             ">
 
@@ -635,7 +636,7 @@
 
     <div class="
         bg-slate-800
-        p-4
+        p-3.5 sm:p-4
         rounded-3xl
         border-l-4
         border-blue-500
@@ -657,7 +658,7 @@
            class="
                 font-bold
                 truncate
-                text-sm
+                text-xs sm:text-sm
            ">
 
             ---
@@ -666,7 +667,7 @@
 
         <p id="dispSStats"
            class="
-                text-xl
+                text-lg sm:text-xl
                 font-black
            ">
 
@@ -680,7 +681,7 @@
 
     <div class="
         bg-slate-800
-        p-4
+        p-3.5 sm:p-4
         rounded-3xl
         border-l-4
         border-slate-600
@@ -702,7 +703,7 @@
            class="
                 font-bold
                 truncate
-                text-sm
+                text-xs sm:text-sm
            ">
 
             ---
@@ -711,7 +712,7 @@
 
         <p id="dispNSStats"
            class="
-                text-xl
+                text-lg sm:text-xl
                 font-black
            ">
 
@@ -726,7 +727,7 @@
     <div class="
         col-span-2
         bg-slate-800
-        p-4
+        p-3.5 sm:p-4
         rounded-3xl
         border-l-4
         border-red-500
@@ -752,7 +753,7 @@
             <p id="dispBName"
                class="
                     font-bold
-                    text-lg
+                    text-base sm:text-lg
                ">
 
                 ---
@@ -763,7 +764,7 @@
 
         <p id="dispBStats"
            class="
-                text-xl
+                text-lg sm:text-xl
                 font-black
            ">
 
@@ -1018,15 +1019,15 @@
         bg-slate-950/95
         z-[240]
         hidden
-        p-6
+        p-4 sm:p-6
         flex
         items-center
         justify-center
     ">
-    <div class="w-full max-w-sm max-h-[85vh] flex flex-col bg-slate-900 rounded-[2.5rem] p-5 border border-slate-700">
+    <div class="w-full max-w-sm max-h-[85vh] flex flex-col bg-slate-900 rounded-[2.5rem] p-4 sm:p-5 border border-slate-700">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-sm font-black text-emerald-400 uppercase italic">Live Scorecards</h3>
-            <button onclick="toggleScorecardModal()" class="text-xs font-bold text-slate-400">✕</button>
+            <button onclick="toggleScorecardModal()" class="text-xs font-bold text-slate-400 p-2">✕</button>
         </div>
         <div id="scorecardModalContent" class="flex-1 overflow-y-auto space-y-4 no-scrollbar text-xs">
             <!-- Populated dynamically -->
@@ -1044,7 +1045,7 @@
         bg-slate-950/95
         z-[250]
         hidden
-        p-6
+        p-4 sm:p-6
         flex
         items-center
         justify-center
@@ -1119,6 +1120,7 @@
                 font-bold
                 uppercase
                 text-[10px]
+                p-3
             ">
 
             Close
@@ -1137,7 +1139,7 @@
         bg-slate-950/95
         z-[260]
         hidden
-        p-6
+        p-4 sm:p-6
         flex
         items-center
         justify-center
@@ -1149,7 +1151,7 @@
         <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-3 no-scrollbar">
             <!-- Populated dynamically -->
         </div>
-        <button onclick="toggleHistory()" class="mt-4 w-full text-slate-500 font-bold uppercase text-[10px]">
+        <button onclick="toggleHistory()" class="mt-4 w-full text-slate-500 font-bold uppercase text-[10px] p-3">
             Close
         </button>
     </div>
@@ -1163,15 +1165,15 @@
         bg-slate-950/95
         z-[270]
         hidden
-        p-6
+        p-4 sm:p-6
         flex
         items-center
         justify-center
     ">
-    <div class="w-full max-w-sm max-h-[85vh] flex flex-col bg-slate-900 rounded-[2.5rem] p-5 border border-slate-700">
+    <div class="w-full max-w-sm max-h-[85vh] flex flex-col bg-slate-900 rounded-[2.5rem] p-4 sm:p-5 border border-slate-700">
         <div class="flex justify-between items-center mb-4">
             <h3 id="histDetailTitle" class="text-sm font-black text-yellow-500 uppercase italic">Match Details</h3>
-            <button onclick="closeHistoryDetail()" class="text-xs font-bold text-slate-400">✕</button>
+            <button onclick="closeHistoryDetail()" class="text-xs font-bold text-slate-400 p-2">✕</button>
         </div>
         <div id="histDetailContent" class="flex-1 overflow-y-auto space-y-4 no-scrollbar text-xs">
             <!-- Populated dynamically -->
@@ -1570,7 +1572,6 @@
             `;
         });
 
-        // Default bowling team distinct from batting team if possible
         if(state.tournamentTeams.length >= 2) {
             bowlSel.selectedIndex = 1;
         }
@@ -1696,13 +1697,15 @@
 
         state.balls++;
 
-        // RECORD BALL LOG
+        // RECORD BALL LOG WITH INNINGS & BATTING TEAM TRACKING
         const overNum = Math.floor((state.balls - 1) / 6);
         const ballInOver = ((state.balls - 1) % 6) + 1;
         const notation = `${overNum}.${ballInOver}`;
         
         if(!state.ballLog) state.ballLog = [];
         state.ballLog.push({
+            inning: state.curInn,
+            battingTeam: state.curBat,
             over: overNum + 1,
             notation: notation,
             description: `${r} run(s) scored by ${state.players[state.sIdx].name} (Bowler: ${state.players[state.bIdx].name})`,
@@ -1732,7 +1735,7 @@
             swap();
         }
 
-        // OVER COMPLETE (UNLOCKS BOWLER SELECTION)
+        // OVER COMPLETE
 
         if(state.balls % 6 === 0) {
 
@@ -1769,6 +1772,8 @@
 
         if(!state.ballLog) state.ballLog = [];
         state.ballLog.push({
+            inning: state.curInn,
+            battingTeam: state.curBat,
             over: overNum + 1,
             notation: notation,
             description: `WICKET! ${state.players[state.sIdx].name} out (Bowler: ${state.players[state.bIdx].name})`,
@@ -1796,7 +1801,7 @@
 
         state.players[state.sIdx].isOut = true;
 
-        state.sIdx = null; // Clears striker slot so a new batsman can be assigned
+        state.sIdx = null;
 
         // OVER COMPLETE
 
@@ -1835,6 +1840,8 @@
 
         if(!state.ballLog) state.ballLog = [];
         state.ballLog.push({
+            inning: state.curInn,
+            battingTeam: state.curBat,
             over: overNum + 1,
             notation: notation,
             description: `Wide Ball (+1 extra)`,
@@ -1889,6 +1896,8 @@ function handleNoBallPrompt() {
 
     if(!state.ballLog) state.ballLog = [];
     state.ballLog.push({
+        inning: state.curInn,
+        battingTeam: state.curBat,
         over: overNum + 1,
         notation: notation,
         description: `No Ball + ${extraRuns} runs`,
@@ -1993,6 +2002,8 @@ function handleRunOutPrompt() {
 
     if(!state.ballLog) state.ballLog = [];
     state.ballLog.push({
+        inning: state.curInn,
+        battingTeam: state.curBat,
         over: overNum + 1,
         notation: notation,
         description: `RUN OUT! ${state.players[outIndex].name} out (${runs} runs completed)`,
@@ -2100,10 +2111,9 @@ function handleRunOutPrompt() {
             else if(oversDone || allOut) {
 
                 if(state.runs === (state.target - 1)) {
-                    // TIE CASE
                     let tieAction = prompt("Match Tied! Type 'SUPER' for Super Over, or enter winning team name to declare winner:");
                     if(tieAction && tieAction.trim().toUpperCase() === 'SUPER') {
-                        alert("Super Over Initiated! Next innings or extra over begins.");
+                        alert("Super Over Initiated!");
                         state.target = state.runs + 1;
                         state.runs = 0;
                         state.wickers = 0;
@@ -2114,7 +2124,7 @@ function handleRunOutPrompt() {
                     } else if(tieAction && state.tournamentTeams.includes(tieAction.trim())) {
                         finish(tieAction.trim(), tieAction.trim() === state.batTeam ? state.bowlTeam : state.batTeam);
                     } else {
-                        finish(state.bowlTeam, state.batTeam); // fallback
+                        finish(state.bowlTeam, state.batTeam);
                     }
                 } else {
                     finish(
@@ -2134,6 +2144,10 @@ function handleRunOutPrompt() {
         // =====================
 
         else if(oversDone || allOut) {
+
+            // SAVE 1ST INNINGS PLAYERS STATS SNAPSHOT FOR HISTORY
+            state.firstInningsPlayersSnapshot = JSON.parse(JSON.stringify(state.players));
+            state.firstInningsBallLog = [...(state.ballLog || [])];
 
             // TARGET
 
@@ -2231,8 +2245,6 @@ function handleRunOutPrompt() {
 
         state.matchEnded = true;
 
-        // UPDATE POINTS
-
         if(state.points[winner]) {
             state.points[winner].w++;
             state.points[winner].p++;
@@ -2241,7 +2253,6 @@ function handleRunOutPrompt() {
             state.points[loser].l++;
         }
 
-        // SAVE TO MATCH HISTORY
         if(!state.matchesHistory) state.matchesHistory = [];
         state.matchesHistory.push({
             id: Date.now(),
@@ -2251,8 +2262,10 @@ function handleRunOutPrompt() {
             loser: loser,
             date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             playersSnapshot: JSON.parse(JSON.stringify(state.players)),
+            firstInningsPlayersSnapshot: state.firstInningsPlayersSnapshot || JSON.parse(JSON.stringify(state.players)),
+            firstInningsBallLog: state.firstInningsBallLog || [],
+            secondInningsBallLog: [...(state.ballLog || [])],
             fallOfWickets: [...state.fallOfWickets],
-            ballLog: [...(state.ballLog || [])],
             maxOvers: state.maxOvers
         });
 
@@ -2313,7 +2326,6 @@ function handleRunOutPrompt() {
    function setField(index, role) {
         const player = state.players[index];
 
-        // RULE: Cannot change bowler once over has started unless over is complete or no balls bowled yet in this spell
         if(role === 'B') {
             const currentOverBallCount = state.balls % 6;
             if(state.bIdx !== null && currentOverBallCount > 0 && !state.isOverWaiting && state.bIdx !== index) {
@@ -2324,7 +2336,6 @@ function handleRunOutPrompt() {
             state.isOverWaiting = false;
         }
 
-        // RULE: Striker / Non-Striker cannot be arbitrarily removed unless they are out or injured
         if(role === 'S') {
             if(state.sIdx !== null && !state.players[state.sIdx].isOut) {
                 let action = prompt(`Batsman ${state.players[state.sIdx].name} is already at Striker. Type 'OUT' or 'INJURED' to remove them, or cancel to keep.`);
@@ -2385,7 +2396,6 @@ function handleRunOutPrompt() {
     // =========================
 
     function resetMatchOnly() {
-        // LOCK CHECK: If balls > 0, require confirmation or completion
         if(state.balls > 0 && !state.matchEnded) {
             if(!confirm("A match is currently in progress! Changing teams will reset this match. Continue?")) return;
         }
@@ -2580,8 +2590,6 @@ function handleRunOutPrompt() {
             .style.pointerEvents =
             lock ? "none" : "auto";
 
-        // TARGET & RUNS REQUIRED EQUATION IN 2ND INNINGS
-
         const reqBox = document.getElementById('runsReqDisp');
         if(state.curInn === 2) {
 
@@ -2670,13 +2678,9 @@ function handleRunOutPrompt() {
             .innerText =
             state.fallOfWickets.length > 0 ? "FoW: " + state.fallOfWickets.join(' | ') : "FoW: None";
 
-        // OTHER RENDERS
-
         renderAdminList();
 
         renderPointsTable();
-
-        // MATCH LOGIC
 
         if(state.balls > 0) {
 
@@ -2685,15 +2689,13 @@ function handleRunOutPrompt() {
     }
 
 // =========================
-    // RENDER ADMIN PLAYER LIST (FIXED BOTH TEAMS SEPARATION)
+    // RENDER ADMIN PLAYER LIST
     // =========================
 
     function renderAdminList() {
 
         const list =
             document.getElementById('adminPList');
-
-        // TAB NAMES
 
         document.getElementById('adminTab1')
             .innerText =
@@ -2705,7 +2707,6 @@ function handleRunOutPrompt() {
 
         list.innerHTML = '';
 
-        // Determine if activeAdminTeam is batting or bowling currently
         const isBattingSide = (activeAdminTeam === state.curBat);
 
         state.players
@@ -2728,7 +2729,7 @@ function handleRunOutPrompt() {
                         justify-between
                         items-center
                         bg-slate-800
-                        p-2
+                        p-2.5 sm:p-2
                         rounded-xl
                         mb-1
 
@@ -2764,8 +2765,8 @@ function handleRunOutPrompt() {
                                     class="
                                         text-[8px]
                                         ${index === state.sIdx ? 'bg-green-700' : 'bg-blue-900'}
-                                        p-1
-                                        px-2
+                                        p-1.5 sm:p-1
+                                        px-2.5 sm:px-2
                                         rounded
                                     ">
 
@@ -2779,8 +2780,8 @@ function handleRunOutPrompt() {
                                     class="
                                         text-[8px]
                                         ${index === state.nsIdx ? 'bg-green-700' : 'bg-slate-700'}
-                                        p-1
-                                        px-2
+                                        p-1.5 sm:p-1
+                                        px-2.5 sm:px-2
                                         rounded
                                     ">
 
@@ -2804,8 +2805,8 @@ function handleRunOutPrompt() {
                                     class="
                                         text-[8px]
                                         ${index === state.bIdx ? 'bg-green-700' : 'bg-red-900'}
-                                        p-1
-                                        px-2
+                                        p-1.5 sm:p-1
+                                        px-2.5 sm:px-2
                                         rounded
                                     ">
 
@@ -2899,15 +2900,11 @@ function handleRunOutPrompt() {
 
         body.innerHTML = '';
 
-        // SORT BY POINTS
-
         const sortedTeams =
 
             Object.entries(state.points)
 
             .sort((a, b) => b[1].p - a[1].p);
-
-        // LOOP
 
         sortedTeams.forEach(team => {
 
@@ -2959,11 +2956,6 @@ function handleRunOutPrompt() {
         });
     }
 
-
-    // =========================
-    // TOGGLE POINTS TABLE
-    // =========================
-
     function togglePoints() {
 
         document.getElementById('pointsOverlay')
@@ -2971,7 +2963,7 @@ function handleRunOutPrompt() {
     }
 
     // =========================
-    // MATCH HISTORY FEATURES
+    // MATCH HISTORY FEATURES (BOTH TEAMS TIMELINE)
     // =========================
 
     function toggleHistory() {
@@ -3010,19 +3002,6 @@ function handleRunOutPrompt() {
         document.getElementById('histDetailTitle').innerText = `${match.batTeam} vs ${match.bowlTeam}`;
         
         const detailContent = document.getElementById('histDetailContent');
-        
-        const ballLog = match.ballLog || [];
-        const maxOverNum = ballLog.length > 0 ? Math.max(...ballLog.map(b => b.over)) : 1;
-
-        let overButtonsHTML = '';
-        for(let i=1; i<=maxOverNum; i++) {
-            overButtonsHTML += `
-                <button onclick="selectMatchOver(${matchId}, ${i})" id="overBtn_${i}" class="px-3 py-1.5 bg-slate-800 rounded-xl text-[10px] font-black border border-slate-700 hover:border-yellow-500 uppercase">
-                    Over ${i}
-                </button>
-            `;
-        }
-
         const teamsInMatch = [match.batTeam, match.bowlTeam].filter(Boolean);
 
         detailContent.innerHTML = `
@@ -3031,12 +3010,12 @@ function handleRunOutPrompt() {
                 <p class="text-sm font-bold text-white uppercase">🏆 Winner: <span class="text-green-400">${match.winner}</span></p>
             </div>
 
-            <!-- TEAM STATS SELECTOR (Batting & Bowling for both teams) -->
+            <!-- TEAM STATS & BALL TIMELINE SELECTOR -->
             <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-blue-400 uppercase mb-2">Select Team Scorecards</p>
+                <p class="text-xs font-black text-blue-400 uppercase mb-2">Select Team Data & Timeline</p>
                 <div class="flex gap-2 mb-3">
                     ${teamsInMatch.map((t, idx) => `
-                        <button onclick="selectHistoryTeam('${matchId}', '${t}')" id="histTeamBtn_${idx}" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase ${idx === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-900 text-slate-300 border border-slate-700'}">
+                        <button onclick="selectHistoryTeam('${matchId}', '${t}')" id="histTeamBtn_${idx}" class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase ${idx === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-900 text-slate-300 border border-slate-700'}">
                             ${t} ${t === match.winner ? '🏆' : ''}
                         </button>
                     `).join('')}
@@ -3048,9 +3027,9 @@ function handleRunOutPrompt() {
 
             <!-- OVER SELECTOR BUTTONS -->
             <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-purple-400 uppercase mb-2">Ball-by-Ball Timeline</p>
+                <p class="text-xs font-black text-purple-400 uppercase mb-2">Ball-by-Ball Timeline (<span id="selectedTeamTimelineTitle"></span>)</p>
                 <div class="flex flex-wrap gap-2 mb-3" id="overSelectorContainer">
-                    ${overButtonsHTML || '<span class="text-[10px] text-slate-500">No balls recorded</span>'}
+                    <!-- Over buttons -->
                 </div>
                 <div id="overBallsDisplay" class="space-y-2 border-t border-slate-700 pt-3">
                     <p class="text-[11px] text-slate-400 italic text-center">Tap an over above to view ball-by-ball details.</p>
@@ -3068,9 +3047,6 @@ function handleRunOutPrompt() {
         if(teamsInMatch.length > 0) {
             selectHistoryTeam(matchId, teamsInMatch[0]);
         }
-        if(maxOverNum >= 1 && ballLog.length > 0) {
-            selectMatchOver(matchId, 1);
-        }
     }
 
     function selectHistoryTeam(matchId, teamName) {
@@ -3082,16 +3058,22 @@ function handleRunOutPrompt() {
             const btn = document.getElementById(`histTeamBtn_${idx}`);
             if(btn) {
                 if(t === teamName) {
-                    btn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-yellow-500 text-black";
+                    btn.className = "flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase bg-yellow-500 text-black";
                 } else {
-                    btn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-slate-900 text-slate-300 border border-slate-700";
+                    btn.className = "flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase bg-slate-900 text-slate-300 border border-slate-700";
                 }
             }
         });
 
+        document.getElementById('selectedTeamTimelineTitle').innerText = teamName;
+
+        // Determine which players snapshot to use for stats
+        const isTeam1BattingFirst = (match.batTeam === teamName);
+        const playersData = isTeam1BattingFirst ? (match.firstInningsPlayersSnapshot || match.playersSnapshot) : match.playersSnapshot;
+
         const display = document.getElementById('historyTeamStatsDisplay');
-        const battingPlayers = match.playersSnapshot.filter(p => p.team === teamName);
-        const bowlingPlayers = match.playersSnapshot.filter(p => p.team !== teamName && p.bb > 0);
+        const battingPlayers = playersData.filter(p => p.team === teamName);
+        const bowlingPlayers = playersData.filter(p => p.team !== teamName && p.bb > 0);
 
         display.innerHTML = `
             <p class="text-[11px] font-black text-yellow-500 uppercase mt-2">${teamName} Batting</p>
@@ -3132,9 +3114,31 @@ function handleRunOutPrompt() {
                 `).join('')}
             </table>
         `;
+
+        // Filter ball logs specific to this team's batting innings
+        const allLogs = [...(match.firstInningsBallLog || []), ...(match.secondInningsBallLog || []), ...(match.ballLog || [])];
+        const teamLogs = allLogs.filter(b => b.battingTeam === teamName);
+        const maxOverNum = teamLogs.length > 0 ? Math.max(...teamLogs.map(b => b.over)) : 1;
+
+        let overButtonsHTML = '';
+        for(let i=1; i<=maxOverNum; i++) {
+            overButtonsHTML += `
+                <button onclick="selectMatchOver(${matchId}, '${teamName}', ${i})" id="overBtn_${i}" class="px-3 py-2 bg-slate-800 rounded-xl text-[10px] font-black border border-slate-700 hover:border-yellow-500 uppercase">
+                    Over ${i}
+                </button>
+            `;
+        }
+
+        document.getElementById('overSelectorContainer').innerHTML = overButtonsHTML || '<span class="text-[10px] text-slate-500">No deliveries recorded for this team</span>';
+        
+        if(maxOverNum >= 1 && teamLogs.length > 0) {
+            selectMatchOver(matchId, teamName, 1);
+        } else {
+            document.getElementById('overBallsDisplay').innerHTML = `<p class="text-[11px] text-slate-400 italic text-center">No balls recorded.</p>`;
+        }
     }
 
-    function selectMatchOver(matchId, overNum) {
+    function selectMatchOver(matchId, teamName, overNum) {
         const match = (state.matchesHistory || []).find(m => m.id == matchId);
         if(!match) return;
 
@@ -3151,7 +3155,8 @@ function handleRunOutPrompt() {
             }
         }
 
-        const ballsInThisOver = (match.ballLog || []).filter(b => b.over === overNum);
+        const allLogs = [...(match.firstInningsBallLog || []), ...(match.secondInningsBallLog || []), ...(match.ballLog || [])];
+        const ballsInThisOver = allLogs.filter(b => b.battingTeam === teamName && b.over === overNum);
         const displayDiv = document.getElementById('overBallsDisplay');
 
         if(ballsInThisOver.length === 0) {
