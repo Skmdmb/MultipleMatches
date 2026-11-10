@@ -130,6 +130,17 @@
                  ">
             </div>
 
+            <label class="
+                block
+                text-[10px]
+                text-slate-500
+                font-bold
+                uppercase
+                mt-2
+            ">
+                Overs per Match
+            </label>
+
             <input id="setupOvers"
                    type="number"
                    value="5"
@@ -205,7 +216,7 @@
             tracking-widest
         ">
 
-            Set Match
+            Set Match & Overs
 
         </h2>
 
@@ -252,6 +263,12 @@
                 ">
 
             </select>
+
+            <!-- CLIMATE / OVERS OVERRIDE -->
+            <div>
+                <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Overs For This Match</label>
+                <input id="matchOversOverride" type="number" value="5" class="w-full bg-slate-900 p-3 rounded-2xl text-center font-bold border border-slate-700 text-yellow-500 outline-none">
+            </div>
 
             <!-- START BUTTON -->
 
@@ -305,6 +322,21 @@
     <!-- NAV BUTTONS -->
 
     <div class="flex gap-2">
+
+        <!-- SCORECARD MODAL BTN -->
+        <button onclick="toggleScorecardModal()"
+            class="
+                text-[10px]
+                bg-emerald-600
+                px-3
+                py-2
+                rounded-full
+                font-bold
+                uppercase
+                tracking-widest
+            ">
+            📊 Scorecard
+        </button>
 
         <!-- HISTORY -->
         <button onclick="toggleHistory()"
@@ -570,7 +602,7 @@
 
         </div>
 
-        <!-- FALL OF WICKETS (Single compact line container) -->
+        <!-- FALL OF WICKETS -->
 
         <div id="fowBox"
 
@@ -945,6 +977,13 @@
 
     </div>
 
+    <!-- ADD MORE TEAMS MID-TOURNAMENT -->
+    <div class="pt-2">
+        <button onclick="promptAddTeam()" class="w-full bg-blue-900/40 border border-blue-500 text-blue-400 p-2.5 rounded-xl text-[10px] font-black uppercase">
+            + Add New Team to Tournament
+        </button>
+    </div>
+
     <!-- RESET -->
 
     <button onclick="resetMatchOnly()"
@@ -962,7 +1001,7 @@
             uppercase
         ">
 
-        Change Teams
+        Change Teams / New Match
 
     </button>
 
@@ -987,10 +1026,30 @@
 
 </div>
 
-<!-- STATS CONTENT -->
+</div>
 
-<div id="statsContent"></div>
-
+<!-- SCORECARD MODAL OVERLAY -->
+<div id="scorecardModal"
+    class="
+        fixed
+        inset-0
+        bg-slate-950/95
+        z-[240]
+        hidden
+        p-6
+        flex
+        items-center
+        justify-center
+    ">
+    <div class="w-full max-w-sm max-h-[85vh] flex flex-col bg-slate-900 rounded-[2.5rem] p-5 border border-slate-700">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-sm font-black text-emerald-400 uppercase italic">Live Scorecards</h3>
+            <button onclick="toggleScorecardModal()" class="text-xs font-bold text-slate-400">✕</button>
+        </div>
+        <div id="scorecardModalContent" class="flex-1 overflow-y-auto space-y-4 no-scrollbar text-xs">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
 </div>
 
 <!-- POINTS TABLE OVERLAY -->
@@ -1215,10 +1274,8 @@
 
         fallOfWickets: [],
 
-        // MATCH HISTORY ARRAY
         matchesHistory: [],
 
-        // COMPREHENSIVE BALL BY BALL RECORD FOR INNINGS
         ballLog: []
     };
 
@@ -1434,15 +1491,9 @@
         // CREATE POINTS
 
         state.tournamentTeams.forEach(team => {
-
-            state.points[team] = {
-
-                w: 0,
-
-                l: 0,
-
-                p: 0
-            };
+            if(!state.points[team]) {
+                state.points[team] = { w: 0, l: 0, p: 0 };
+            }
         });
 
         document.getElementById('setupOverlay')
@@ -1451,6 +1502,31 @@
         showMatchSelector();
 
         syncToCloud();
+    }
+
+
+    // =========================
+    // ADD TEAM MID-TOURNAMENT
+    // =========================
+
+    function promptAddTeam() {
+        const newTeamName = prompt("Enter new team name:");
+        if(!newTeamName || !newTeamName.trim()) return;
+
+        const trimmed = newTeamName.trim();
+        if(state.tournamentTeams.includes(trimmed)) {
+            alert("Team already exists!");
+            return;
+        }
+
+        state.tournamentTeams.push(trimmed);
+        if(!state.points[trimmed]) {
+            state.points[trimmed] = { w: 0, l: 0, p: 0 };
+        }
+
+        alert(`Successfully added ${trimmed} to tournament!`);
+        syncToCloud();
+        renderAdminList();
     }
 
 
@@ -1485,6 +1561,9 @@
             `;
         });
 
+        // Set default overs input
+        document.getElementById('matchOversOverride').value = state.maxOvers || 5;
+
         document.getElementById('matchSelector')
             .classList.remove('hidden');
     }
@@ -1505,6 +1584,11 @@
         if(state.batTeam === state.bowlTeam) {
 
             return alert("Select different teams");
+        }
+
+        const overrideOvers = parseInt(document.getElementById('matchOversOverride').value);
+        if(!isNaN(overrideOvers) && overrideOvers > 0) {
+            state.maxOvers = overrideOvers;
         }
 
         state.curBat = state.batTeam;
@@ -2505,7 +2589,7 @@ function handleRunOutPrompt() {
 
             `).join('');
 
-        // FALL OF WICKETS (Compacted into one scrollable clean marquee line)
+        // FALL OF WICKETS
 
         document.getElementById('fowBox')
             .innerText =
@@ -2514,8 +2598,6 @@ function handleRunOutPrompt() {
         // OTHER RENDERS
 
         renderAdminList();
-
-        renderStats();
 
         renderPointsTable();
 
@@ -2564,6 +2646,9 @@ function handleRunOutPrompt() {
                 const isBatSide =
                     player.team === state.curBat;
 
+                // Only dim if player is out AND currently on batting side
+                const shouldDim = isBatSide && player.isOut;
+
                 list.innerHTML += `
 
                     <div class="
@@ -2575,7 +2660,7 @@ function handleRunOutPrompt() {
                         rounded-xl
                         mb-1
 
-                        ${player.isOut ? 'opacity-30' : ''}
+                        ${shouldDim ? 'opacity-30 pointer-events-none' : ''}
                     ">
 
                         <!-- NAME -->
@@ -2586,7 +2671,7 @@ function handleRunOutPrompt() {
                             uppercase
                         ">
 
-                            ${player.name}
+                            ${player.name} ${player.isOut && isBatSide ? '(OUT)' : ''}
 
                         </span>
 
@@ -2671,262 +2756,69 @@ function handleRunOutPrompt() {
     }
 
 // =========================
-    // RENDER SCORECARDS
+    // SCORECARD MODAL TOGGLE & RENDER
     // =========================
 
-    function renderStats() {
-
-        const container =
-            document.getElementById('statsContent');
-
-        container.innerHTML =
-
-            [state.batTeam, state.bowlTeam]
-
-            .filter(team => team !== '')
-
-            .map(team => {
-
-                // BATTING
-
-                const battingPlayers =
-
-                    state.players.filter(
-
-                        player => player.team === team
-                    );
-
-                // BOWLING
-
-                const bowlingPlayers =
-
-                    state.players.filter(
-
-                        player =>
-
-                            player.team !== team &&
-
-                            player.bb > 0
-                    );
-
-                return `
-
-                <!-- BATTING CARD -->
-
-                <div class="
-                    mb-5
-                    bg-slate-800
-                    p-5
-                    rounded-3xl
-                    border
-                    border-slate-700
-                ">
-
-                    <p class="
-                        text-xs
-                        font-black
-                        text-yellow-500
-                        uppercase
-                        mb-3
-                    ">
-
-                        ${team} Batting
-
-                    </p>
-
-                    <table class="
-                        w-full
-                        text-[11px]
-                    ">
-
-                        <!-- HEAD -->
-
-                        <tr class="
-                            border-b
-                            border-slate-700
-                            text-slate-400
-                        ">
-
-                            <th class="
-                                text-left
-                                py-2
-                            ">
-
-                                Batter
-
-                            </th>
-
-                            <th>R</th>
-
-                            <th>B</th>
-
-                            <th>SR</th>
-
-                        </tr>
-
-                        <!-- PLAYERS -->
-
-                        ${battingPlayers.map(player => `
-
-                            <tr class="
-                                ${player.isOut
-                                    ? 'text-slate-500'
-                                    : 'text-white'}
-                            ">
-
-                                <td class="py-2">
-
-                                    ${player.name}
-
-                                    ${!player.isOut ? '*' : ''}
-
-                                </td>
-
-                                <td>${player.r}</td>
-
-                                <td>${player.b}</td>
-
-                                <td>
-
-                                    ${
-                                        player.b
-
-                                        ?
-
-                                        ((player.r/player.b)*100)
-                                        .toFixed(1)
-
-                                        :
-
-                                        '0'
-                                    }
-
-                                </td>
-
-                            </tr>
-
-                        `).join('')}
-
-                    </table>
-
-                </div>
-
-                <!-- BOWLING CARD -->
-
-                <div class="
-                    mb-5
-                    bg-slate-800
-                    p-5
-                    rounded-3xl
-                    border
-                    border-slate-700
-                ">
-
-                    <p class="
-                        text-xs
-                        font-black
-                        text-blue-400
-                        uppercase
-                        mb-3
-                    ">
-
-                        ${team} Bowling
-
-                    </p>
-
-                    <table class="
-                        w-full
-                        text-[11px]
-                    ">
-
-                        <!-- HEAD -->
-
-                        <tr class="
-                            border-b
-                            border-slate-700
-                            text-slate-400
-                        ">
-
-                            <th class="
-                                text-left
-                                py-2
-                            ">
-
-                                Bowler
-
-                            </th>
-
-                            <th>O</th>
-
-                            <th>R</th>
-
-                            <th>W</th>
-
-                            <th>ECO</th>
-
-                        </tr>
-
-                        <!-- BOWLERS -->
-
-                        ${bowlingPlayers.map(player => `
-
-                            <tr>
-
-                                <td class="py-2">
-
-                                    ${player.name}
-
-                                </td>
-
-                                <td>
-
-                                    ${Math.floor(player.bb/6)}
-                                    .
-                                    ${player.bb%6}
-
-                                </td>
-
-                                <td>
-
-                                    ${player.rc}
-
-                                </td>
-
-                                <td>
-
-                                    ${player.w}
-
-                                </td>
-
-                                <td>
-
-                                    ${
-                                        player.bb
-
-                                        ?
-
-                                        (
-                                            player.rc /
-                                            (player.bb/6)
-                                        ).toFixed(2)
-
-                                        :
-
-                                        '0'
-                                    }
-
-                                </td>
-
-                            </tr>
-
-                        `).join('')}
-
-                    </table>
-
-                </div>
-                `;
-            }).join('');
+    function toggleScorecardModal() {
+        renderScorecardsModalContent();
+        document.getElementById('scorecardModal').classList.toggle('hidden');
     }
+
+    function renderScorecardsModalContent() {
+        const container = document.getElementById('scorecardModalContent');
+        if(!state.batTeam) {
+            container.innerHTML = `<p class="text-center text-slate-500 py-6 text-xs font-bold uppercase italic">No active match in progress.</p>`;
+            return;
+        }
+
+        container.innerHTML = [state.batTeam, state.bowlTeam].filter(Boolean).map(team => {
+            const battingPlayers = state.players.filter(p => p.team === team);
+            const bowlingPlayers = state.players.filter(p => p.team !== team && p.bb > 0);
+
+            return `
+                <div class="bg-slate-800 p-4 rounded-2xl mb-4 border border-slate-700">
+                    <p class="text-xs font-black text-yellow-500 uppercase mb-2">${team} Batting</p>
+                    <table class="w-full text-[11px] mb-3">
+                        <tr class="border-b border-slate-700 text-slate-400">
+                            <th class="text-left py-1">Batter</th>
+                            <th>R</th>
+                            <th>B</th>
+                            <th>SR</th>
+                        </tr>
+                        ${battingPlayers.map(p => `
+                            <tr class="${p.isOut && p.team === state.curBat ? 'text-slate-500' : 'text-white'}">
+                                <td class="py-1">${p.name}${!p.isOut && p.team === state.curBat ? '*' : ''}</td>
+                                <td>${p.r}</td>
+                                <td>${p.b}</td>
+                                <td>${p.b ? ((p.r/p.b)*100).toFixed(1) : '0'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+
+                    <p class="text-xs font-black text-blue-400 uppercase mb-2">${team} Bowling</p>
+                    <table class="w-full text-[11px]">
+                        <tr class="border-b border-slate-700 text-slate-400">
+                            <th class="text-left py-1">Bowler</th>
+                            <th>O</th>
+                            <th>R</th>
+                            <th>W</th>
+                            <th>ECO</th>
+                        </tr>
+                        ${bowlingPlayers.map(p => `
+                            <tr>
+                                <td class="py-1">${p.name}</td>
+                                <td>${Math.floor(p.bb/6)}.${p.bb%6}</td>
+                                <td>${p.rc}</td>
+                                <td>${p.w}</td>
+                                <td>${p.bb ? (p.rc / (p.bb/6)).toFixed(2) : '0'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+            `;
+        }).join('');
+    }
+
 // =========================
     // RENDER POINTS TABLE
     // =========================
@@ -3050,7 +2942,6 @@ function handleRunOutPrompt() {
         
         const detailContent = document.getElementById('histDetailContent');
         
-        // Calculate max overs played to generate over selection tabs
         const ballLog = match.ballLog || [];
         const maxOverNum = ballLog.length > 0 ? Math.max(...ballLog.map(b => b.over)) : 1;
 
@@ -3063,15 +2954,32 @@ function handleRunOutPrompt() {
             `;
         }
 
+        const teamsInMatch = [match.batTeam, match.bowlTeam].filter(Boolean);
+
         detailContent.innerHTML = `
             <div class="bg-slate-800 p-4 rounded-2xl">
                 <p class="text-xs font-black text-yellow-500 uppercase mb-2">Match Result</p>
                 <p class="text-sm font-bold text-white uppercase">🏆 Winner: <span class="text-green-400">${match.winner}</span></p>
             </div>
 
+            <!-- TEAM STATS SELECTOR (Shows data for both Winner and Loser) -->
+            <div class="bg-slate-800 p-4 rounded-2xl">
+                <p class="text-xs font-black text-blue-400 uppercase mb-2">Select Team Scorecard</p>
+                <div class="flex gap-2 mb-3">
+                    ${teamsInMatch.map((t, idx) => `
+                        <button onclick="selectHistoryTeam('${matchId}', '${t}')" id="histTeamBtn_${idx}" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase ${idx === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-900 text-slate-300 border border-slate-700'}">
+                            ${t} ${t === match.winner ? '🏆' : ''}
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="historyTeamStatsDisplay" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
             <!-- OVER SELECTOR BUTTONS -->
             <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-purple-400 uppercase mb-2">Select Over (Ball-by-Ball)</p>
+                <p class="text-xs font-black text-purple-400 uppercase mb-2">Ball-by-Ball Timeline</p>
                 <div class="flex flex-wrap gap-2 mb-3" id="overSelectorContainer">
                     ${overButtonsHTML || '<span class="text-[10px] text-slate-500">No balls recorded</span>'}
                 </div>
@@ -3081,46 +2989,87 @@ function handleRunOutPrompt() {
             </div>
 
             <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-blue-400 uppercase mb-2">Fall of Wickets</p>
+                <p class="text-xs font-black text-pink-400 uppercase mb-2">Fall of Wickets</p>
                 <p class="text-[11px] text-slate-300">${match.fallOfWickets.length > 0 ? match.fallOfWickets.join(' | ') : 'No wickets fell'}</p>
-            </div>
-
-            <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-purple-400 uppercase mb-3">Player Statistics</p>
-                <table class="w-full text-[11px]">
-                    <tr class="border-b border-slate-700 text-slate-400">
-                        <th class="text-left py-1">Player</th>
-                        <th>Team</th>
-                        <th>R</th>
-                        <th>B</th>
-                        <th>W</th>
-                    </tr>
-                    ${match.playersSnapshot.map(p => `
-                        <tr class="border-b border-slate-800">
-                            <td class="py-1 font-bold">${p.name}</td>
-                            <td class="text-slate-400">${p.team}</td>
-                            <td>${p.r}</td>
-                            <td>${p.b}</td>
-                            <td>${p.w}</td>
-                        </tr>
-                    `).join('')}
-                </table>
             </div>
         `;
 
         document.getElementById('historyDetailOverlay').classList.remove('hidden');
 
-        // Automatically select the first over if available
+        // Select first team & first over by default
+        if(teamsInMatch.length > 0) {
+            selectHistoryTeam(matchId, teamsInMatch[0]);
+        }
         if(maxOverNum >= 1 && ballLog.length > 0) {
             selectMatchOver(matchId, 1);
         }
     }
 
-    function selectMatchOver(matchId, overNum) {
-        const match = (state.matchesHistory || []).find(m => m.id === matchId);
+    function selectHistoryTeam(matchId, teamName) {
+        const match = (state.matchesHistory || []).find(m => m.id == matchId);
         if(!match) return;
 
-        // Highlight active over button
+        const teams = [match.batTeam, match.bowlTeam].filter(Boolean);
+        teams.forEach((t, idx) => {
+            const btn = document.getElementById(`histTeamBtn_${idx}`);
+            if(btn) {
+                if(t === teamName) {
+                    btn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-yellow-500 text-black";
+                } else {
+                    btn.className = "flex-1 py-2 rounded-xl text-[10px] font-black uppercase bg-slate-900 text-slate-300 border border-slate-700";
+                }
+            }
+        });
+
+        const display = document.getElementById('historyTeamStatsDisplay');
+        const battingPlayers = match.playersSnapshot.filter(p => p.team === teamName);
+        const bowlingPlayers = match.playersSnapshot.filter(p => p.team !== teamName && p.bb > 0);
+
+        display.innerHTML = `
+            <p class="text-[11px] font-black text-yellow-500 uppercase mt-2">${teamName} Batting</p>
+            <table class="w-full text-[11px] mb-2">
+                <tr class="border-b border-slate-700 text-slate-400">
+                    <th class="text-left py-1">Batter</th>
+                    <th>R</th>
+                    <th>B</th>
+                    <th>SR</th>
+                </tr>
+                ${battingPlayers.map(p => `
+                    <tr>
+                        <td class="py-1 font-bold">${p.name}</td>
+                        <td>${p.r}</td>
+                        <td>${p.b}</td>
+                        <td>${p.b ? ((p.r/p.b)*100).toFixed(1) : '0'}</td>
+                    </tr>
+                `).join('')}
+            </table>
+
+            <p class="text-[11px] font-black text-blue-400 uppercase mt-3">${teamName} Bowling</p>
+            <table class="w-full text-[11px]">
+                <tr class="border-b border-slate-700 text-slate-400">
+                    <th class="text-left py-1">Bowler</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>ECO</th>
+                </tr>
+                ${bowlingPlayers.map(p => `
+                    <tr>
+                        <td class="py-1 font-bold">${p.name}</td>
+                        <td>${Math.floor(p.bb/6)}.${p.bb%6}</td>
+                        <td>${p.rc}</td>
+                        <td>${p.w}</td>
+                        <td>${p.bb ? (p.rc / (p.bb/6)).toFixed(2) : '0'}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
+    }
+
+    function selectMatchOver(matchId, overNum) {
+        const match = (state.matchesHistory || []).find(m => m.id == matchId);
+        if(!match) return;
+
         const container = document.getElementById('overSelectorContainer');
         if(container) {
             Array.from(container.children).forEach(btn => {
