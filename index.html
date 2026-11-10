@@ -570,7 +570,7 @@
 
         </div>
 
-        <!-- FALL OF WICKETS -->
+        <!-- FALL OF WICKETS (Single compact line container) -->
 
         <div id="fowBox"
 
@@ -578,6 +578,10 @@
                 text-[10px]
                 text-slate-400
                 mt-3
+                truncate
+                bg-slate-900/50
+                p-2
+                rounded-xl
             ">
 
         </div>
@@ -1212,7 +1216,10 @@
         fallOfWickets: [],
 
         // MATCH HISTORY ARRAY
-        matchesHistory: []
+        matchesHistory: [],
+
+        // COMPREHENSIVE BALL BY BALL RECORD FOR INNINGS
+        ballLog: []
     };
 
 
@@ -1505,6 +1512,7 @@
         state.curInn = 1;
 
         state.matchEnded = false;
+        state.ballLog = [];
 
         activeAdminTeam = state.batTeam;
 
@@ -1591,6 +1599,19 @@
 
         state.balls++;
 
+        // RECORD BALL LOG
+        const overNum = Math.floor((state.balls - 1) / 6);
+        const ballInOver = ((state.balls - 1) % 6) + 1;
+        const notation = `${overNum}.${ballInOver}`;
+        
+        if(!state.ballLog) state.ballLog = [];
+        state.ballLog.push({
+            over: overNum + 1,
+            notation: notation,
+            description: `${r} run(s) scored by ${state.players[state.sIdx].name} (Bowler: ${state.players[state.bIdx].name})`,
+            runs: r
+        });
+
         // BATSMAN
 
         state.players[state.sIdx].r += r;
@@ -1645,6 +1666,18 @@
 
         state.balls++;
 
+        const overNum = Math.floor((state.balls - 1) / 6);
+        const ballInOver = ((state.balls - 1) % 6) + 1;
+        const notation = `${overNum}.${ballInOver}`;
+
+        if(!state.ballLog) state.ballLog = [];
+        state.ballLog.push({
+            over: overNum + 1,
+            notation: notation,
+            description: `WICKET! ${state.players[state.sIdx].name} out (Bowler: ${state.players[state.bIdx].name})`,
+            runs: 0
+        });
+
         // BOWLER
 
         state.players[state.bIdx].w++;
@@ -1655,11 +1688,7 @@
 
         state.fallOfWickets.push(
 
-            `${state.runs}/${state.wickers}
-
-            (${state.players[state.sIdx].name},
-
-            ${Math.floor(state.balls/6)}.${state.balls%6})`
+            `${state.runs}/${state.wickers} (${state.players[state.sIdx].name}, ${notation})`
         );
 
         // OVER BALL
@@ -1703,6 +1732,18 @@
 
         state.players[state.bIdx].rc += 1;
 
+        const overNum = Math.floor(state.balls / 6);
+        const ballInOver = (state.balls % 6) + 1;
+        const notation = `${overNum}.${ballInOver} (WD)`;
+
+        if(!state.ballLog) state.ballLog = [];
+        state.ballLog.push({
+            over: overNum + 1,
+            notation: notation,
+            description: `Wide Ball (+1 extra)`,
+            runs: 1
+        });
+
         // NO BALL COUNT
 
         state.overBalls.push('WD');
@@ -1736,7 +1777,7 @@ function handleNoBallPrompt() {
 
     // TOTAL SCORE
 
-    state.runs += (0 + extraRuns);
+    state.runs += (1 + extraRuns);
 
     // BATSMAN RUNS
 
@@ -1744,7 +1785,18 @@ function handleNoBallPrompt() {
 
     // BOWLER RUNS
 
-    state.players[state.bIdx].rc += (0 + extraRuns);
+    state.players[state.bIdx].rc += (1 + extraRuns);
+
+    const overNum = Math.floor(state.balls / 6);
+    const notation = `${overNum}.${state.balls % 6} (NB)`;
+
+    if(!state.ballLog) state.ballLog = [];
+    state.ballLog.push({
+        over: overNum + 1,
+        notation: notation,
+        description: `No Ball + ${extraRuns} runs`,
+        runs: 1 + extraRuns
+    });
 
     // OVER TRACKER
 
@@ -1805,6 +1857,10 @@ function handleRunOutPrompt() {
 
     state.balls++;
 
+    const overNum = Math.floor((state.balls - 1) / 6);
+    const ballInOver = ((state.balls - 1) % 6) + 1;
+    const notation = `${overNum}.${ballInOver}`;
+
     // BATTER RUNS
 
     state.players[state.sIdx].r += runs;
@@ -1838,15 +1894,19 @@ function handleRunOutPrompt() {
         state.players[state.nsIdx].isOut = true;
     }
 
+    if(!state.ballLog) state.ballLog = [];
+    state.ballLog.push({
+        over: overNum + 1,
+        notation: notation,
+        description: `RUN OUT! ${state.players[outIndex].name} out (${runs} runs completed)`,
+        runs: runs
+    });
+
     // FALL OF WICKET
 
     state.fallOfWickets.push(
 
-        `${state.runs}/${state.wickers}
-
-        (${state.players[outIndex].name},
-
-        ${Math.floor(state.balls/6)}.${state.balls%6})`
+        `${state.runs}/${state.wickers} (${state.players[outIndex].name}, ${notation})`
     );
 
     // OVER TRACKER
@@ -1991,6 +2051,9 @@ function handleRunOutPrompt() {
 
             state.isOverWaiting = false;
 
+            // RESET BALL LOG FOR INNINGS 2
+            state.ballLog = [];
+
             // RESET BATSMEN FOR 2ND INNINGS
 
             state.players.forEach(player => {
@@ -2041,6 +2104,7 @@ function handleRunOutPrompt() {
             date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             playersSnapshot: JSON.parse(JSON.stringify(state.players)),
             fallOfWickets: [...state.fallOfWickets],
+            ballLog: [...(state.ballLog || [])],
             maxOvers: state.maxOvers
         });
 
@@ -2168,6 +2232,7 @@ function handleRunOutPrompt() {
         state.overBalls = [];
 
         state.fallOfWickets = [];
+        state.ballLog = [];
 
         // REMOVE PLAYER SELECTION
 
@@ -2261,7 +2326,9 @@ function handleRunOutPrompt() {
 
             fallOfWickets: [],
 
-            matchesHistory: []
+            matchesHistory: [],
+
+            ballLog: []
         };
 
         history = [];
@@ -2438,11 +2505,11 @@ function handleRunOutPrompt() {
 
             `).join('');
 
-        // FALL OF WICKETS
+        // FALL OF WICKETS (Compacted into one scrollable clean marquee line)
 
         document.getElementById('fowBox')
             .innerText =
-            state.fallOfWickets.join(' • ');
+            state.fallOfWickets.length > 0 ? "FoW: " + state.fallOfWickets.join(' | ') : "FoW: None";
 
         // OTHER RENDERS
 
@@ -2983,7 +3050,18 @@ function handleRunOutPrompt() {
         
         const detailContent = document.getElementById('histDetailContent');
         
-        const battingPlayers = match.playersSnapshot;
+        // Calculate max overs played to generate over selection tabs
+        const ballLog = match.ballLog || [];
+        const maxOverNum = ballLog.length > 0 ? Math.max(...ballLog.map(b => b.over)) : 1;
+
+        let overButtonsHTML = '';
+        for(let i=1; i<=maxOverNum; i++) {
+            overButtonsHTML += `
+                <button onclick="selectMatchOver(${matchId}, ${i})" id="overBtn_${i}" class="px-3 py-1.5 bg-slate-800 rounded-xl text-[10px] font-black border border-slate-700 hover:border-yellow-500 uppercase">
+                    Over ${i}
+                </button>
+            `;
+        }
 
         detailContent.innerHTML = `
             <div class="bg-slate-800 p-4 rounded-2xl">
@@ -2991,9 +3069,20 @@ function handleRunOutPrompt() {
                 <p class="text-sm font-bold text-white uppercase">🏆 Winner: <span class="text-green-400">${match.winner}</span></p>
             </div>
 
+            <!-- OVER SELECTOR BUTTONS -->
+            <div class="bg-slate-800 p-4 rounded-2xl">
+                <p class="text-xs font-black text-purple-400 uppercase mb-2">Select Over (Ball-by-Ball)</p>
+                <div class="flex flex-wrap gap-2 mb-3" id="overSelectorContainer">
+                    ${overButtonsHTML || '<span class="text-[10px] text-slate-500">No balls recorded</span>'}
+                </div>
+                <div id="overBallsDisplay" class="space-y-2 border-t border-slate-700 pt-3">
+                    <p class="text-[11px] text-slate-400 italic text-center">Tap an over above to view ball-by-ball details.</p>
+                </div>
+            </div>
+
             <div class="bg-slate-800 p-4 rounded-2xl">
                 <p class="text-xs font-black text-blue-400 uppercase mb-2">Fall of Wickets</p>
-                <p class="text-[11px] text-slate-300">${match.fallOfWickets.length > 0 ? match.fallOfWickets.join(' • ') : 'No wickets fell'}</p>
+                <p class="text-[11px] text-slate-300">${match.fallOfWickets.length > 0 ? match.fallOfWickets.join(' | ') : 'No wickets fell'}</p>
             </div>
 
             <div class="bg-slate-800 p-4 rounded-2xl">
@@ -3006,7 +3095,7 @@ function handleRunOutPrompt() {
                         <th>B</th>
                         <th>W</th>
                     </tr>
-                    ${battingPlayers.map(p => `
+                    ${match.playersSnapshot.map(p => `
                         <tr class="border-b border-slate-800">
                             <td class="py-1 font-bold">${p.name}</td>
                             <td class="text-slate-400">${p.team}</td>
@@ -3020,6 +3109,45 @@ function handleRunOutPrompt() {
         `;
 
         document.getElementById('historyDetailOverlay').classList.remove('hidden');
+
+        // Automatically select the first over if available
+        if(maxOverNum >= 1 && ballLog.length > 0) {
+            selectMatchOver(matchId, 1);
+        }
+    }
+
+    function selectMatchOver(matchId, overNum) {
+        const match = (state.matchesHistory || []).find(m => m.id === matchId);
+        if(!match) return;
+
+        // Highlight active over button
+        const container = document.getElementById('overSelectorContainer');
+        if(container) {
+            Array.from(container.children).forEach(btn => {
+                btn.classList.remove('bg-yellow-500', 'text-black', 'border-yellow-500');
+                btn.classList.add('bg-slate-800', 'text-white', 'border-slate-700');
+            });
+            const activeBtn = document.getElementById(`overBtn_${overNum}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-slate-800', 'text-white', 'border-slate-700');
+                activeBtn.classList.add('bg-yellow-500', 'text-black', 'border-yellow-500');
+            }
+        }
+
+        const ballsInThisOver = (match.ballLog || []).filter(b => b.over === overNum);
+        const displayDiv = document.getElementById('overBallsDisplay');
+
+        if(ballsInThisOver.length === 0) {
+            displayDiv.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">No deliveries logged for Over ${overNum}.</p>`;
+            return;
+        }
+
+        displayDiv.innerHTML = ballsInThisOver.map(ball => `
+            <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-xs font-black text-yellow-500">${ball.notation}</span>
+                <span class="text-[11px] text-slate-200 font-medium">${ball.description}</span>
+            </div>
+        `).join('');
     }
 
     function closeHistoryDetail() {
