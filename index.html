@@ -210,64 +210,67 @@
             text-xl
             font-black
             text-blue-400
-            mb-6
+            mb-4
             italic
             uppercase
             tracking-widest
         ">
 
-            Set Match & Overs
+            Configure Match
 
         </h2>
 
-        <div class="space-y-4">
+        <div class="space-y-3 text-left">
+
+            <!-- OPTIONAL TOSS BUTTON FEATURE -->
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 flex justify-between items-center mb-2">
+                <div>
+                    <p class="text-[10px] font-black text-yellow-500 uppercase">Optional Toss Feature</p>
+                    <p id="tossResultDisp" class="text-xs text-slate-400 font-bold">Not conducted yet</p>
+                </div>
+                <button onclick="performToss()" class="bg-purple-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-white">🪙 Toss</button>
+            </div>
 
             <!-- BATTING TEAM -->
-
-            <select id="selectBatTeam"
-
-                class="
-                    w-full
-                    bg-slate-900
-                    p-4
-                    rounded-2xl
-                    outline-none
-                    border
-                    border-slate-700
-                    font-bold
-                ">
-
-            </select>
-
-            <p class="
-                text-[10px]
-                font-black
-                text-slate-600
-            ">
-                VS
-            </p>
+            <div>
+                <label class="block text-[10px] text-yellow-500 font-black uppercase mb-1">🏏 Opening Batting Team</label>
+                <select id="selectBatTeam"
+                    class="
+                        w-full
+                        bg-slate-900
+                        p-3
+                        rounded-2xl
+                        outline-none
+                        border
+                        border-slate-700
+                        font-bold
+                        text-xs
+                    ">
+                </select>
+            </div>
 
             <!-- BOWLING TEAM -->
+            <div>
+                <label class="block text-[10px] text-red-400 font-black uppercase mb-1">⚾ Opening Bowling Team</label>
+                <select id="selectBowlTeam"
+                    class="
+                        w-full
+                        bg-slate-900
+                        p-3
+                        rounded-2xl
+                        outline-none
+                        border
+                        border-slate-700
+                        font-bold
+                        text-xs
+                    ">
+                </select>
+            </div>
 
-            <select id="selectBowlTeam"
-
-                class="
-                    w-full
-                    bg-slate-900
-                    p-4
-                    rounded-2xl
-                    outline-none
-                    border
-                    border-slate-700
-                    font-bold
-                ">
-
-            </select>
-
-            <!-- CLIMATE / OVERS OVERRIDE -->
+            <!-- OVERS OVERRIDE -->
             <div>
                 <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Overs For This Match</label>
-                <input id="matchOversOverride" type="number" value="5" class="w-full bg-slate-900 p-3 rounded-2xl text-center font-bold border border-slate-700 text-yellow-500 outline-none">
+                <input id="matchOversOverride" type="number" value="5" class="w-full bg-slate-900 p-3 rounded-2xl text-center font-bold border border-slate-700 text-yellow-500 text-xs outline-none">
             </div>
 
             <!-- START BUTTON -->
@@ -282,6 +285,7 @@
                     rounded-2xl
                     font-black
                     uppercase
+                    mt-2
                 ">
 
                 Start Match
@@ -984,6 +988,13 @@
         </button>
     </div>
 
+    <!-- FORCE COMPLETE MATCH -->
+    <div>
+        <button onclick="forceCompleteMatch()" class="w-full bg-yellow-900/40 border border-yellow-500 text-yellow-400 p-2.5 rounded-xl text-[10px] font-black uppercase">
+            🏁 Force Complete Match
+        </button>
+    </div>
+
     <!-- RESET -->
 
     <button onclick="resetMatchOnly()"
@@ -1527,6 +1538,33 @@
         alert(`Successfully added ${trimmed} to tournament!`);
         syncToCloud();
         renderAdminList();
+    }
+
+
+    // =========================
+    // TOSS FEATURE
+    // =========================
+
+    function performToss() {
+        const team1 = document.getElementById('selectBatTeam').value;
+        const team2 = document.getElementById('selectBowlTeam').value;
+        if(team1 === team2) {
+            alert("Please select different teams first!");
+            return;
+        }
+        const teams = [team1, team2];
+        const winner = teams[Math.floor(Math.random() * teams.length)];
+        const decision = Math.random() > 0.5 ? "Bat" : "Bowl";
+
+        document.getElementById('tossResultDisp').innerText = `${winner} won toss & elected to ${decision}`;
+        
+        if(decision === "Bat") {
+            document.getElementById('selectBatTeam').value = winner;
+            document.getElementById('selectBowlTeam').value = teams.find(t => t !== winner);
+        } else {
+            document.getElementById('selectBowlTeam').value = winner;
+            document.getElementById('selectBatTeam').value = teams.find(t => t !== winner);
+        }
     }
 
 
@@ -2082,18 +2120,37 @@ function handleRunOutPrompt() {
                 );
             }
 
-            // LOST MATCH
+            // INNINGS ENDED (CHECK FOR TIE)
 
             else if(oversDone || allOut) {
 
-                finish(
+                if(state.runs === (state.target - 1)) {
+                    // TIE CASE
+                    let tieAction = prompt("Match Tied! Type 'SUPER' for Super Over, or enter winning team name to declare winner:");
+                    if(tieAction && tieAction.trim().toUpperCase() === 'SUPER') {
+                        alert("Super Over Initiated! Next innings or extra over begins.");
+                        state.target = state.runs + 1;
+                        state.runs = 0;
+                        state.wickers = 0;
+                        state.balls = 0;
+                        state.overBalls = [];
+                        render();
+                        return;
+                    } else if(tieAction && state.tournamentTeams.includes(tieAction.trim())) {
+                        finish(tieAction.trim(), tieAction.trim() === state.batTeam ? state.bowlTeam : state.batTeam);
+                    } else {
+                        finish(state.bowlTeam, state.batTeam); // fallback
+                    }
+                } else {
+                    finish(
 
-                    state.curBat === state.batTeam
-                        ? state.bowlTeam
-                        : state.batTeam,
+                        state.curBat === state.batTeam
+                            ? state.bowlTeam
+                            : state.batTeam,
 
-                    state.curBat
-                );
+                        state.curBat
+                    );
+                }
             }
         }
 
@@ -2162,6 +2219,36 @@ function handleRunOutPrompt() {
 
 
     // =========================
+    // FORCE COMPLETE MATCH
+    // =========================
+
+    function forceCompleteMatch() {
+        if(!confirm("Are you sure you want to complete/end this match now?")) return;
+        
+        let winner = prompt(`Match ended early. Enter winning team name (${state.batTeam} or ${state.bowlTeam}), or type 'TIE':`);
+        if(!winner) return;
+
+        if(winner.trim().toUpperCase() === 'TIE') {
+            alert("Match recorded as Tie.");
+            state.matchEnded = true;
+            render();
+            syncToCloud();
+            togglePoints();
+            return;
+        }
+
+        const winTeam = state.tournamentTeams.find(t => t.toLowerCase() === winner.trim().toLowerCase());
+        if(!winTeam) {
+            alert("Invalid team name!");
+            return;
+        }
+
+        const loseTeam = winTeam === state.batTeam ? state.bowlTeam : state.batTeam;
+        finish(winTeam, loseTeam);
+    }
+
+
+    // =========================
     // FINISH MATCH
     // =========================
 
@@ -2171,11 +2258,13 @@ function handleRunOutPrompt() {
 
         // UPDATE POINTS
 
-        state.points[winner].w++;
-
-        state.points[winner].p++;
-
-        state.points[loser].l++;
+        if(state.points[winner]) {
+            state.points[winner].w++;
+            state.points[winner].p++;
+        }
+        if(state.points[loser]) {
+            state.points[loser].l++;
+        }
 
         // SAVE TO MATCH HISTORY
         if(!state.matchesHistory) state.matchesHistory = [];
@@ -2243,26 +2332,28 @@ function handleRunOutPrompt() {
 
 
     // =========================
-    // SET PLAYER ROLE
+    // SET PLAYER ROLE (WITH RE-ASSIGN FLEXIBILITY)
     // =========================
 
    function setField(index, role) {
 
     if(role === 'S') {
-
+        if(state.nsIdx === index) {
+            state.nsIdx = null; // Free up slot if reassigned
+        }
         state.sIdx = index;
     }
 
     else if(role === 'NS') {
-
+        if(state.sIdx === index) {
+            state.sIdx = null; // Free up slot if reassigned
+        }
         state.nsIdx = index;
     }
 
     else if(role === 'B') {
 
         state.bIdx = index;
-
-        // ✅ OVER COMPLETE FIX
 
         state.isOverWaiting = false;
     }
@@ -2681,9 +2772,7 @@ function handleRunOutPrompt() {
 
                             ${
                                 isBatSide &&
-                                !player.isOut &&
-                                index !== state.sIdx &&
-                                index !== state.nsIdx
+                                !player.isOut
 
                                 ?
 
@@ -2693,7 +2782,7 @@ function handleRunOutPrompt() {
 
                                     class="
                                         text-[8px]
-                                        bg-blue-900
+                                        ${index === state.sIdx ? 'bg-green-700' : 'bg-blue-900'}
                                         p-1
                                         px-2
                                         rounded
@@ -2708,7 +2797,7 @@ function handleRunOutPrompt() {
 
                                     class="
                                         text-[8px]
-                                        bg-slate-700
+                                        ${index === state.nsIdx ? 'bg-green-700' : 'bg-slate-700'}
                                         p-1
                                         px-2
                                         rounded
@@ -2723,8 +2812,7 @@ function handleRunOutPrompt() {
                             }
 
                             ${
-                                !isBatSide &&
-                                index !== state.bIdx
+                                !isBatSide
 
                                 ?
 
@@ -2734,7 +2822,7 @@ function handleRunOutPrompt() {
 
                                     class="
                                         text-[8px]
-                                        bg-red-900
+                                        ${index === state.bIdx ? 'bg-green-700' : 'bg-red-900'}
                                         p-1
                                         px-2
                                         rounded
@@ -2962,9 +3050,9 @@ function handleRunOutPrompt() {
                 <p class="text-sm font-bold text-white uppercase">🏆 Winner: <span class="text-green-400">${match.winner}</span></p>
             </div>
 
-            <!-- TEAM STATS SELECTOR (Shows data for both Winner and Loser) -->
+            <!-- TEAM STATS SELECTOR (Batting & Bowling for both teams) -->
             <div class="bg-slate-800 p-4 rounded-2xl">
-                <p class="text-xs font-black text-blue-400 uppercase mb-2">Select Team Scorecard</p>
+                <p class="text-xs font-black text-blue-400 uppercase mb-2">Select Team Scorecards</p>
                 <div class="flex gap-2 mb-3">
                     ${teamsInMatch.map((t, idx) => `
                         <button onclick="selectHistoryTeam('${matchId}', '${t}')" id="histTeamBtn_${idx}" class="flex-1 py-2 rounded-xl text-[10px] font-black uppercase ${idx === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-900 text-slate-300 border border-slate-700'}">
@@ -2996,7 +3084,6 @@ function handleRunOutPrompt() {
 
         document.getElementById('historyDetailOverlay').classList.remove('hidden');
 
-        // Select first team & first over by default
         if(teamsInMatch.length > 0) {
             selectHistoryTeam(matchId, teamsInMatch[0]);
         }
