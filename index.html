@@ -1,1 +1,418 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Cricket Tournament - Follow live scores, fixtures, results and tournament standings.">
+
+    <title>Cricket Tournament</title>
+
+    <link rel="icon" href="assets/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+    <!-- ================================= -->
+    <!-- MAIN APPLICATION -->
+    <!-- ================================= -->
+
+    <div class="app-container">
+
+        <!-- ================================= -->
+        <!-- NAVIGATION BAR -->
+        <!-- ================================= -->
+
+        <header class="navbar">
+
+            <div class="logo-section">
+
+                <img src="assets/logo.png" alt="Cricket Tournament Logo">
+
+                <h2>
+                    CRICKET
+                    <span>TOURNAMENT</span>
+                </h2>
+
+            </div>
+
+            <nav class="navigation">
+
+                <button
+                    id="viewerBtn"
+                    class="nav-btn active"
+                    type="button"
+                    onclick="showViewer()">
+
+                    Viewer
+
+                </button>
+
+                <button
+                    id="adminBtn"
+                    class="nav-btn"
+                    type="button"
+                    onclick="showAdmin()">
+
+                    Admin
+
+                </button>
+
+            </nav>
+
+        </header>
+
+
+        <!-- ================================= -->
+        <!-- VIEWER WINDOW -->
+        <!-- ================================= -->
+
+        <main id="viewerWindow" class="window">
+
+            <!-- WELCOME SECTION -->
+
+            <section class="welcome-section">
+
+                <h1>Welcome to Cricket Tournament</h1>
+
+                <p>
+                    Follow every match.
+                    Celebrate every victory.
+                </p>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- LIVE MATCH -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Live Match</h2>
+
+                <div id="liveMatch">
+
+                    <p>No live match currently available.</p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- BALL BY BALL COMMENTARY -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Ball-by-Ball Commentary</h2>
+
+                <div id="ballByBallViewer">
+
+                    <p>
+                        Ball-by-ball details will appear
+                        when a match starts.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- UPCOMING FIXTURES -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Upcoming Fixtures</h2>
+
+                <div id="upcomingFixtures">
+
+                    <p>No upcoming matches scheduled.</p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- POINTS TABLE -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Tournament Points Table</h2>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Position</th>
+                                <th>Team</th>
+                                <th>Played</th>
+                                <th>Won</th>
+                                <th>Lost</th>
+                                <th>Points</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="pointsTableBody">
+
+                            <tr>
+                                <td colspan="6">
+                                    Tournament data will appear here.
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- RECENT MATCH RESULTS -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Match Results</h2>
+
+                <div id="recentResults">
+
+                    <p>No completed matches yet.</p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- PLAYER PROFILES -->
+            <!-- ================================= -->
+
+            <section class="content-section">
+
+                <h2>Player Profiles</h2>
+
+                <div id="playerProfiles">
+
+                    <p>
+                        Player profiles will appear here
+                        after players are registered.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- ================================= -->
+        <!-- ADMIN WINDOW -->
+        <!-- ================================= -->
+
+        <main id="adminWindow" class="window hidden">
+
+
+            <!-- ADMIN WELCOME -->
+
+            <section class="welcome-section">
+
+                <h1>Admin Dashboard</h1>
+
+                <p>
+                    Manage your tournament from one place.
+                </p>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- ADMIN LOGIN -->
+            <!-- ================================= -->
+
+            <section
+                id="adminLogin"
+                class="content-section">
+
+                <h2>Admin Login</h2>
+
+                <form
+                    id="adminLoginForm"
+                    onsubmit="event.preventDefault(); adminLogin();">
+
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        placeholder="Enter admin password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button type="submit">
+                        Login
+                    </button>
+
+                </form>
+
+                <p id="loginMessage"></p>
+
+            </section>
+
+
+            <!-- ================================= -->
+            <!-- ADMIN DASHBOARD -->
+            <!-- ================================= -->
+
+            <section
+                id="adminDashboard"
+                class="content-section hidden">
+
+                <h2>Tournament Management</h2>
+
+
+                <!-- ADMIN NAVIGATION -->
+
+                <div class="admin-actions">
+
+                    <button
+                        type="button"
+                        onclick="showAdminDashboard()">
+
+                        Dashboard
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showTeamManagement()">
+
+                        Manage Teams
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showPlayerManagement()">
+
+                        Manage Players
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showMatchManagement()">
+
+                        Match Scheduling
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showScoring()">
+
+                        Live Scoring
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showAdminPointsTable()">
+
+                        Points Table
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="showTournamentManagement()">
+
+                        Tournament Management
+
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="adminLogout()">
+
+                        Logout
+
+                    </button>
+
+                </div>
+
+
+                <!-- ================================= -->
+                <!-- ADMIN CONTENT AREA -->
+                <!-- ================================= -->
+
+                <div id="adminContent">
+
+                    <h3>Welcome, Admin!</h3>
+
+                    <p>
+                        Select an option above to manage
+                        your tournament.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- ================================= -->
+        <!-- APPLICATION FOOTER -->
+        <!-- ================================= -->
+
+        <footer class="app-footer">
+
+            <p>
+                Cricket Tournament
+                <span>&copy; 2026</span>
+            </p>
+
+        </footer>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- JAVASCRIPT FILES -->
+    <!-- ================================= -->
+
+    <!-- API Communication -->
+    <script src="js/api.js"></script>
+
+    <!-- Match Scoring Engine -->
+    <script src="js/scoring.js"></script>
+
+    <!-- Viewer Functions -->
+    <script src="js/viewer.js"></script>
+
+    <!-- Admin Functions -->
+    <script src="js/admin.js"></script>
+
+    <!-- Application Initialization -->
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
