@@ -561,7 +561,7 @@
 
             </div>
 
-            <!-- TARGET -->
+            <!-- TARGET / RUNS REQUIRED EQUATION -->
 
             <div id="targetBox"
                  class="hidden text-right">
@@ -580,13 +580,17 @@
                 <p id="targetVal"
 
                     class="
-                        text-3xl
+                        text-2xl
                         font-black
                         text-blue-500
                     ">
 
                     ---
 
+                </p>
+
+                <p id="runsReqDisp" class="text-[10px] font-bold text-yellow-400 mt-1">
+                    ---
                 </p>
 
             </div>
@@ -890,47 +894,14 @@
 
     </div>
 
-    <!-- TEAM SWITCH -->
+    <!-- TEAM SWITCH TABS FOR ROSTERS -->
 
-    <div class="
-        flex
-        bg-slate-800
-        p-1
-        rounded-xl
-    ">
-
-        <button id="adminTab1"
-                onclick="switchAdminTeam(1)"
-
-            class="
-                flex-1
-                py-2
-                rounded-lg
-                text-[9px]
-                font-black
-                uppercase
-            ">
-
-            Team A
-
-        </button>
-
-        <button id="adminTab2"
-                onclick="switchAdminTeam(2)"
-
-            class="
-                flex-1
-                py-2
-                rounded-lg
-                text-[9px]
-                font-black
-                uppercase
-            ">
-
-            Team B
-
-        </button>
-
+    <div class="space-y-1">
+        <p class="text-[9px] font-black text-slate-400 uppercase">Manage Squad Rosters</p>
+        <div class="flex bg-slate-800 p-1 rounded-xl">
+            <button id="adminTab1" onclick="switchAdminTeam(1)" class="flex-1 py-2 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white">Team A</button>
+            <button id="adminTab2" onclick="switchAdminTeam(2)" class="flex-1 py-2 rounded-lg text-[9px] font-black uppercase text-slate-400">Team B</button>
+        </div>
     </div>
 
     <!-- ADD PLAYER -->
@@ -1599,7 +1570,11 @@
             `;
         });
 
-        // Set default overs input
+        // Default bowling team distinct from batting team if possible
+        if(state.tournamentTeams.length >= 2) {
+            bowlSel.selectedIndex = 1;
+        }
+
         document.getElementById('matchOversOverride').value = state.maxOvers || 5;
 
         document.getElementById('matchSelector')
@@ -1757,7 +1732,7 @@
             swap();
         }
 
-        // OVER COMPLETE
+        // OVER COMPLETE (UNLOCKS BOWLER SELECTION)
 
         if(state.balls % 6 === 0) {
 
@@ -1821,7 +1796,7 @@
 
         state.players[state.sIdx].isOut = true;
 
-        state.sIdx = null;
+        state.sIdx = null; // Clears striker slot so a new batsman can be assigned
 
         // OVER COMPLETE
 
@@ -2332,36 +2307,55 @@ function handleRunOutPrompt() {
 
 
     // =========================
-    // SET PLAYER ROLE (WITH RE-ASSIGN FLEXIBILITY)
+    // SET PLAYER ROLE WITH STRICT RESTRICTIONS
     // =========================
 
    function setField(index, role) {
+        const player = state.players[index];
 
-    if(role === 'S') {
-        if(state.nsIdx === index) {
-            state.nsIdx = null; // Free up slot if reassigned
+        // RULE: Cannot change bowler once over has started unless over is complete or no balls bowled yet in this spell
+        if(role === 'B') {
+            const currentOverBallCount = state.balls % 6;
+            if(state.bIdx !== null && currentOverBallCount > 0 && !state.isOverWaiting && state.bIdx !== index) {
+                alert("Cannot change bowler mid-over! The current bowler must complete the over.");
+                return;
+            }
+            state.bIdx = index;
+            state.isOverWaiting = false;
         }
-        state.sIdx = index;
-    }
 
-    else if(role === 'NS') {
-        if(state.sIdx === index) {
-            state.sIdx = null; // Free up slot if reassigned
+        // RULE: Striker / Non-Striker cannot be arbitrarily removed unless they are out or injured
+        if(role === 'S') {
+            if(state.sIdx !== null && !state.players[state.sIdx].isOut) {
+                let action = prompt(`Batsman ${state.players[state.sIdx].name} is already at Striker. Type 'OUT' or 'INJURED' to remove them, or cancel to keep.`);
+                if(!action || (action.trim().toUpperCase() !== 'OUT' && action.trim().toUpperCase() !== 'INJURED')) {
+                    return;
+                }
+                state.players[state.sIdx].isOut = true;
+            }
+            if(state.nsIdx === index) {
+                state.nsIdx = null;
+            }
+            state.sIdx = index;
         }
-        state.nsIdx = index;
+
+        if(role === 'NS') {
+            if(state.nsIdx !== null && !state.players[state.nsIdx].isOut) {
+                let action = prompt(`Batsman ${state.players[state.nsIdx].name} is already at Non-Striker. Type 'OUT' or 'INJURED' to remove them, or cancel to keep.`);
+                if(!action || (action.trim().toUpperCase() !== 'OUT' && action.trim().toUpperCase() !== 'INJURED')) {
+                    return;
+                }
+                state.players[state.nsIdx].isOut = true;
+            }
+            if(state.sIdx === index) {
+                state.sIdx = null;
+            }
+            state.nsIdx = index;
+        }
+
+        render();
+        syncToCloud();
     }
-
-    else if(role === 'B') {
-
-        state.bIdx = index;
-
-        state.isOverWaiting = false;
-    }
-
-    render();
-
-    syncToCloud();
-}
 
 
     // =========================
@@ -2369,15 +2363,17 @@ function handleRunOutPrompt() {
     // =========================
 
     function switchAdminTeam(teamNo) {
+        const btn1 = document.getElementById('adminTab1');
+        const btn2 = document.getElementById('adminTab2');
 
         if(teamNo === 1) {
-
             activeAdminTeam = state.batTeam;
-        }
-
-        else {
-
+            btn1.className = "flex-1 py-2 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white";
+            btn2.className = "flex-1 py-2 rounded-lg text-[9px] font-black uppercase text-slate-400";
+        } else {
             activeAdminTeam = state.bowlTeam;
+            btn2.className = "flex-1 py-2 rounded-lg text-[9px] font-black uppercase bg-blue-600 text-white";
+            btn1.className = "flex-1 py-2 rounded-lg text-[9px] font-black uppercase text-slate-400";
         }
 
         renderAdminList();
@@ -2389,57 +2385,36 @@ function handleRunOutPrompt() {
     // =========================
 
     function resetMatchOnly() {
-
-        // MATCH RESET
+        // LOCK CHECK: If balls > 0, require confirmation or completion
+        if(state.balls > 0 && !state.matchEnded) {
+            if(!confirm("A match is currently in progress! Changing teams will reset this match. Continue?")) return;
+        }
 
         state.runs = 0;
-
         state.wickers = 0;
-
         state.balls = 0;
-
         state.curInn = 1;
-
         state.target = null;
-
         state.matchEnded = false;
-
         state.overBalls = [];
-
         state.fallOfWickets = [];
         state.ballLog = [];
 
-        // REMOVE PLAYER SELECTION
-
         state.sIdx = null;
-
         state.nsIdx = null;
-
         state.bIdx = null;
 
-        // RESET PLAYER STATS
-
         state.players.forEach(player => {
-
             player.r = 0;
-
             player.b = 0;
-
             player.w = 0;
-
             player.rc = 0;
-
             player.bb = 0;
-
             player.isOut = false;
         });
 
-        // BACK TO MATCH SELECTOR
-
         state.batTeam = '';
-
         state.bowlTeam = '';
-
         state.curBat = '';
 
         document.getElementById('mainDashboard')
@@ -2458,8 +2433,6 @@ function handleRunOutPrompt() {
     function fullSystemReset() {
 
         if(!confirm("Delete everything?")) return;
-
-        // RESET COMPLETE STATE
 
         state = {
 
@@ -2607,8 +2580,9 @@ function handleRunOutPrompt() {
             .style.pointerEvents =
             lock ? "none" : "auto";
 
-        // TARGET
+        // TARGET & RUNS REQUIRED EQUATION IN 2ND INNINGS
 
+        const reqBox = document.getElementById('runsReqDisp');
         if(state.curInn === 2) {
 
             document.getElementById('targetBox')
@@ -2616,6 +2590,16 @@ function handleRunOutPrompt() {
 
             document.getElementById('targetVal')
                 .innerText = state.target;
+
+            const runsNeeded = state.target - state.runs;
+            const totalBallsMax = state.maxOvers * 6;
+            const ballsRemaining = totalBallsMax - state.balls;
+
+            if(runsNeeded <= 0) {
+                reqBox.innerText = `Target Achieved! 🎉`;
+            } else {
+                reqBox.innerText = `Need ${runsNeeded} run(s) from ${ballsRemaining} ball(s)`;
+            }
 
         } else {
 
@@ -2701,7 +2685,7 @@ function handleRunOutPrompt() {
     }
 
 // =========================
-    // RENDER ADMIN PLAYER LIST
+    // RENDER ADMIN PLAYER LIST (FIXED BOTH TEAMS SEPARATION)
     // =========================
 
     function renderAdminList() {
@@ -2721,7 +2705,8 @@ function handleRunOutPrompt() {
 
         list.innerHTML = '';
 
-        // FILTER PLAYERS
+        // Determine if activeAdminTeam is batting or bowling currently
+        const isBattingSide = (activeAdminTeam === state.curBat);
 
         state.players
 
@@ -2734,11 +2719,7 @@ function handleRunOutPrompt() {
                 const index =
                     state.players.indexOf(player);
 
-                const isBatSide =
-                    player.team === state.curBat;
-
-                // Only dim if player is out AND currently on batting side
-                const shouldDim = isBatSide && player.isOut;
+                const shouldDim = isBattingSide && player.isOut;
 
                 list.innerHTML += `
 
@@ -2762,7 +2743,7 @@ function handleRunOutPrompt() {
                             uppercase
                         ">
 
-                            ${player.name} ${player.isOut && isBatSide ? '(OUT)' : ''}
+                            ${player.name} ${player.isOut && isBattingSide ? '(OUT)' : ''}
 
                         </span>
 
@@ -2771,7 +2752,7 @@ function handleRunOutPrompt() {
                         <div class="flex gap-1">
 
                             ${
-                                isBatSide &&
+                                isBattingSide &&
                                 !player.isOut
 
                                 ?
@@ -2812,7 +2793,7 @@ function handleRunOutPrompt() {
                             }
 
                             ${
-                                !isBatSide
+                                !isBattingSide
 
                                 ?
 
