@@ -1,1 +1,553 @@
 
+/* =====================================
+   1. GLOBAL SETTINGS
+===================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --background: #080e1b;
+    --surface: #111b2d;
+    --surface-light: #19263b;
+    --primary: #eab83f;
+    --secondary: #1688f8;
+    --text: #ffffff;
+    --muted: #9baac0;
+    --border: rgba(255, 255, 255, 0.09);
+    --success: #27c77a;
+    --danger: #ff5252;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    transition: 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================
+   2. MAIN CONTAINER
+===================================== */
+
+.app-container {
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+/* =====================================
+   3. NAVIGATION BAR
+===================================== */
+
+.navbar {
+    width: 100%;
+    min-height: 85px;
+    padding: 15px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0d1728;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-section img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.logo-section h2 {
+    font-size: 21px;
+    letter-spacing: 1px;
+    font-weight: 800;
+}
+
+.logo-section span {
+    color: var(--primary);
+}
+
+.navigation {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-btn {
+    padding: 11px 27px;
+    border-radius: 8px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+    background: var(--primary);
+    color: #101522;
+    border-color: var(--primary);
+}
+
+
+/* =====================================
+   4. MAIN WINDOWS
+===================================== */
+
+.window {
+    width: 100%;
+    max-width: 1400px;
+    margin: auto;
+    padding: 35px 6%;
+}
+
+
+/* =====================================
+   5. WELCOME SECTION
+===================================== */
+
+.welcome-section {
+    min-height: 250px;
+    padding: 65px 35px;
+    margin-bottom: 35px;
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(8, 14, 27, 0.97),
+            rgba(8, 14, 27, 0.55)
+        ),
+        url('../assets/logo.png') center 43% / cover no-repeat;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.welcome-section h1 {
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.welcome-section p {
+    color: var(--muted);
+    font-size: 16px;
+}
+
+
+/* =====================================
+   6. CONTENT SECTIONS
+===================================== */
+
+.content-section {
+    background: var(--surface);
+    padding: 27px;
+    margin-bottom: 28px;
+    border-radius: 15px;
+    border: 1px solid var(--border);
+}
+
+.content-section h2 {
+    font-size: 21px;
+    margin-bottom: 22px;
+    padding-left: 13px;
+    border-left: 4px solid var(--primary);
+}
+
+
+/* =====================================
+   7. TABLE DESIGN
+===================================== */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+thead {
+    background: var(--surface-light);
+}
+
+th {
+    color: var(--primary);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+th,
+td {
+    padding: 17px 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    color: #dce5f1;
+}
+
+tbody tr {
+    transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+    background: var(--surface-light);
+}
+
+
+/* =====================================
+   8. BUTTONS
+===================================== */
+
+.content-section button,
+.admin-actions button {
+    background: var(--primary);
+    color: #101522;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.content-section button:hover,
+.admin-actions button:hover {
+    background: #ffd36b;
+    transform: translateY(-2px);
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+
+/* =====================================
+   9. ADMIN LOGIN
+===================================== */
+
+#adminLogin {
+    max-width: 480px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+#adminLogin h2 {
+    text-align: left;
+}
+
+#adminPassword {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: white;
+    outline: none;
+}
+
+#adminPassword:focus {
+    border-color: var(--secondary);
+}
+
+#loginMessage {
+    margin-top: 12px;
+    color: var(--danger);
+}
+
+
+/* =====================================
+   10. ADMIN CONTENT
+===================================== */
+
+#adminContent {
+    padding: 20px;
+    background: var(--background);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+
+
+/* =====================================
+   11. LIVE MATCH PLACEHOLDER
+===================================== */
+
+#liveMatch,
+#recentResults {
+    padding: 20px;
+    background: var(--surface-light);
+    border-radius: 10px;
+    color: var(--muted);
+}
+
+
+/* =====================================
+   12. RESPONSIVE DESIGN
+===================================== */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        padding: 14px 4%;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .logo-section h2 {
+        font-size: 17px;
+    }
+
+    .logo-section img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .navigation {
+        width: 100%;
+    }
+
+    .nav-btn {
+        flex: 1;
+        padding: 10px;
+    }
+
+    .window {
+        padding: 22px 4%;
+    }
+
+    .welcome-section {
+        min-height: 200px;
+        padding: 30px 20px;
+    }
+
+    .welcome-section h1 {
+        font-size: 27px;
+    }
+
+    .content-section {
+        padding: 18px;
+    }
+
+    .admin-actions {
+        flex-direction: column;
+    }
+
+    .admin-actions button {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 400px) {
+
+    .logo-section h2 {
+        font-size: 15px;
+    }
+
+    .welcome-section h1 {
+        font-size: 23px;
+    }
+
+}
+
+/* =====================================
+   TEAM MANAGEMENT
+===================================== */
+
+.team-form {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+.team-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 13px;
+    border-radius: 8px;
+    background: var(--background);
+    color: white;
+    border: 1px solid var(--border);
+    outline: none;
+}
+
+.team-form input:focus {
+    border-color: var(--primary);
+}
+
+#adminTeamTable button {
+    margin: 3px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+
+    .team-form {
+        flex-direction: column;
+    }
+
+    .team-form button {
+        width: 100%;
+    }
+
+}
+
+/* =====================================
+   MATCH MANAGEMENT
+===================================== */
+
+.match-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 550px;
+    margin-top: 20px;
+}
+
+.match-form label {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.match-form input,
+.match-form select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    background: var(--background);
+    color: white;
+    border: 1px solid var(--border);
+    outline: none;
+}
+
+.match-form input:focus,
+.match-form select:focus {
+    border-color: var(--primary);
+}
+
+.match-form select option {
+    background: var(--surface);
+    color: white;
+}
+
+.match-form button {
+    margin-top: 10px;
+}
+
+#adminMatchTable button {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+/* =====================================
+   LIVE SCORING DESIGN
+===================================== */
+
+.scoreboard {
+    background: linear-gradient(135deg, #142b48, #080e1b);
+    border: 1px solid var(--primary);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.scoreboard h1 {
+    font-size: 55px;
+    color: var(--primary);
+    margin: 10px 0;
+}
+
+.match-title {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.live-label {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 15px;
+    background: #153e2d;
+    color: #27c77a;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.scoring-heading {
+    margin: 25px 0 15px;
+}
+
+.scoring-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.scoring-buttons button {
+    min-width: 65px;
+    min-height: 55px;
+    font-size: 18px;
+}
+
+.extra-buttons button {
+    font-size: 14px;
+}
+
+@media (max-width: 500px) {
+
+    .scoring-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .scoring-buttons button {
+        width: 100%;
+    }
+
+    .scoreboard h1 {
+        font-size: 42px;
+    }
+
+}
